@@ -36,14 +36,14 @@
          commands input]
     (if (empty? commands)
       {:horizontal horizontal :depth depth} 
-      (let [command (first commands)]
-        (cond (= (first command) 'down)
-              (recur horizontal depth (+ aim (second command)) (rest commands))
-              (= (first command) 'up)
-              (recur horizontal depth (- aim (second command)) (rest commands))
-              (= (first command) 'forward)
-              (recur (+ horizontal (second command))
-                     (+ depth (* aim (second command)))
+      (let [[op val] (first commands)]
+        (cond (= op 'down)
+              (recur horizontal depth (+ aim val) (rest commands))
+              (= op 'up)
+              (recur horizontal depth (- aim val) (rest commands))
+              (= op 'forward)
+              (recur (+ horizontal val)
+                     (+ depth (* aim val))
                      aim
                      (rest commands)))))))
 
