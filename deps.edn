@@ -1,1 +1,4 @@
-{}
+{:paths [:clj-paths :resource-paths]
+ :aliases
+ {:clj-paths ["src/advent_of_code_2021"]
+  :resource-paths ["resources"]}}
