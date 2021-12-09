@@ -39,9 +39,6 @@
          x-diff (- (:x (first line)) (:x (last line)))
          y-diff (- (:y (first line)) (:y (last line)))
          last-point (first line)]
-    ;; (println x-diff)
-    ;; (println y-diff)
-    ;; (println last-point)
     (if (and (= 0 x-diff) (= 0 y-diff))
       line
       (let [next-point (gen-next-point last-point x-diff y-diff)]
@@ -50,7 +47,6 @@
                (next-n y-diff y-diff)
                next-point)))))
 
-;; hacky way to remove line
 (defn remove-line
   [line lines]
   (filter #(not= line %) lines))
@@ -87,16 +83,23 @@
        reduce-lines
        count))
 
+(defn count-all-overlaps
+  [input]
+  (->> input
+       nearby-lines
+       (map all-points)
+       (map set)
+       all-intersections
+       reduce-lines
+       count))
+
 (comment
   (def sample (util/read-input "day05sample.txt"))
-  (map #(str/split % #" -> ") sample)
 
-  (filter straight-line? (nearby-lines sample))
+  ;; part1
+  (= 5 (count-overlaps sample))
+  (= 7269 (count-overlaps (util/read-input "day05.txt")))
 
-  (gen-next-point {:x 0 :y 9} -5 0)
-  (all-points (first (nearby-lines sample)))
-  (map all-points (nearby-lines sample))
-
-  (count-overlaps sample)
-  (count-overlaps (util/read-input "day05.txt"))
+  (= 12 (count-all-overlaps sample))
+  (= 21140 (count-all-overlaps (util/read-input "day05.txt")))
   ,)
