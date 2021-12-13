@@ -54,19 +54,33 @@
   (let [[six-or-nine nine-or-six] six-segments
         diff1 (set/difference six-or-nine nine-or-six)
         diff2 (set/difference nine-or-six six-or-nine)]
-    (if (some #(= % (first diff1)) one)
+    (if (some #(not= % (first diff1)) one)
       diff1
       diff2)))
+
+(defn get-bottom
+  [top bottom-left four five-segments]
+  (set/difference (reduce into five-segments) (reduce into [top bottom-left four])))
+
+(defn get-middle
+  [top top-right bottom-left bottom five-segments]
+  (let [known-segments (reduce into [top top-right bottom-left bottom])]
+    (set/difference (first (filter #(set/subset? known-segments %) five-segments))
+                    known-segments)))
+
+(defn get-top-left
+  [middle one four]
+  (set/difference four (set/union one middle)))
 
 (defn get-nine
   [top-right six-segments]
   (filter (fn [s] (some #(= top-right %) s)) six-segments))
 
 (defn find-segments
-  [segment-length vs]
-  (filter #(= (count %) segment-length) vs))
+[segment-length vs]
+(filter #(= (count %) segment-length) vs))
 
-(defn parse-all-digits
+(defn get-all-segments
   "take parsed input and make digits"
   [input]
   (let [all-digits (into (:signal-pattern input) (:output-value input))
@@ -80,29 +94,11 @@
         bottom-left (get-bottom-left one six-segments)
         top-right (get-top-right one six-segments)
         bottom-right (get-bottom-right one top-right)
-        nine (get-nine top-right six-segments)]
-    ;; all-digits
-    six-segments
-    {one 1
-     ;; two 2
-     ;; three 3
-     four 4
-     ;; five 5
-     ;; six 6
-     seven 7
-     eight 8
-     nine 9
-     ;; zero 0
-     ;; four
-     ;; seven
-     ;; bottom-left
-     ;; bottom-right
-     }
-    ;; top
-    ;; bottom-left
-    ;; top-right
-    ;; bottom-right
-    ))
+        bottom (get-bottom top bottom-left four five-segments)
+        middle (get-middle top top-right bottom-left bottom five-segments)
+        top-left (get-top-left middle one four)]
+    (zipmap (mapv first [top top-left top-right middle bottom bottom-left bottom-right])
+            [:top :top-left :top-right :middle :bottom :bottom-left :bottom-right])))
 
 (comment
   (def sample "day08sample.txt")
@@ -145,4 +141,6 @@
     (->> ["acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"]
          (map #(str/split % #" \| "))
          (map (fn [[signal output]] {:signal-pattern (parse-digits signal) :output-value (parse-digits output)}))))
+
+  (get-all-segments (first simple-sample))
   ,)
